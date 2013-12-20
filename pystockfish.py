@@ -14,7 +14,6 @@
 import subprocess
 from random import randint
 
-
 class Match:
 	'''
 	The Match class setups a chess match between two specified engines.  The white player
@@ -44,11 +43,10 @@ class Match:
 		self.white_engine.newgame()
 		self.black_engine.newgame()
 		self.winner = None
+		self.winner_name = None
 
 	def move(self):
 		if len(self.moves)>200:
-			self.winner = None
-			self.winner_name = None
 			return False
 		elif len(self.moves) % 2:
 			active_engine = self.black_engine
@@ -78,12 +76,12 @@ class Match:
 				elif matenum<0: 
 					self.winner_engine=inactive_engine
 					self.winner=inactive_engine_name
-			else:
-				self.winner = None
-				self.winner_engine = None
 			return False
 
 	def run(self):
+		'''
+		Returns the winning chess engine or "None" if there is a draw.
+		'''
 		while self.move(): pass
 		return self.winner
 
@@ -128,7 +126,6 @@ class Engine(subprocess.Popen):
 			stdin=subprocess.PIPE,
 			stdout=subprocess.PIPE,)
 		self.depth = str(depth)
-		self.time = str(time)
 		self.ponder = ponder
 		self.put('uci')
 		if not ponder:
@@ -221,18 +218,4 @@ class Engine(subprocess.Popen):
 			if text == 'readyok':
 				return lastline
 			lastline = text
-
-def movelisttostr(moves):
-	movestr = ''
-	for h in moves:
-		movestr += h + ' '
-	return movestr.strip()
-
-engines = {
-	'shallow': Engine(depth=5),
-	'deep': Engine(depth=10),
-}
-
-deep= engines['deep']
-m = Match(engines=engines)
 
