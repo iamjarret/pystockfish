@@ -3,10 +3,10 @@ from setuptools import setup
 setup(name="pystockfish",
 	author='Jarret Petrillo',
 	author_email="iamjarret@gmail.com",
-	version="0.1.2",
+	version="0.1.3",
 	license="GPL3",
 	keywords="chess stockfish",
-	url='http://pypi.python.org/pypi/pystockfish/',
+	url='http://www.github.com/iamjarret/pystockfish/',
 	py_modules=["pystockfish"],
 	description="Wraps the open-source Stockfish chess engine for easy integration into python.",
 	long_description='''
