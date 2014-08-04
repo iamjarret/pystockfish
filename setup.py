@@ -3,7 +3,7 @@ from setuptools import setup
 setup(name="pystockfish",
 	author='Jarret Petrillo',
 	author_email="iamjarret@gmail.com",
-	version="0.1.3",
+	version="0.1.4",
 	license="GPL3",
 	keywords="chess stockfish",
 	url='http://www.github.com/iamjarret/pystockfish/',
