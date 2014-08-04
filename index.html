@@ -1,51 +1,36 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=640">
+    <meta name="description" content="Pystockfish : Implements an easy-to-use Engine class to integrates the Stockfish chess engine with Python">
 
-    <link rel="stylesheet" href="stylesheets/core.css" media="screen">
-    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <script type="text/javascript" src="javascripts/modernizr.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $('#main_content').headsmart()
-      })
-    </script>
-    <title>Pystockfish by iamjarret</title>
+    <title>Pystockfish</title>
   </head>
 
   <body>
-    <a id="forkme_banner" href="https://github.com/iamjarret/pystockfish">View on GitHub</a>
-    <div class="shell">
 
-      <header>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <h1>Pystockfish</h1>
-            <h2>Implements an easy-to-use Engine class to integrates the Stockfish chess engine with Python</h2>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-      </header>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/iamjarret/pystockfish">View on GitHub</a>
 
-      <section id="downloads">
-        <span class="inner">
-          <a href="https://github.com/iamjarret/pystockfish/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/iamjarret/pystockfish/tarball/master" class="tgz"><em>download</em> .TGZ</a>
-        </span>
-      </section>
+          <h1 id="project_title">Pystockfish</h1>
+          <h2 id="project_tagline">Implements an easy-to-use Engine class to integrates the Stockfish chess engine with Python</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/iamjarret/pystockfish/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/iamjarret/pystockfish/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
 
-      <span class="banner-fix"></span>
-
-
-      <section id="main_content">
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <hr><h2>
 <a name="pystockfish" class="anchor" href="#pystockfish"><span class="octicon octicon-link"></span></a>PYSTOCKFISH</h2>
 
@@ -63,18 +48,18 @@ be executable at the root level.</p>
 <blockquote>
 <blockquote>
 <blockquote>
-<p>from pystockfish import *
-deep = Engine(depth=20)
-deep.setposition(['e2e4'])
-deep.bestmove()
-{'info': 'info depth 10 seldepth 13 score cp -40 nodes 33303 nps 951514 time 35 multipv 1 pv b8c6 g1f3 g8f6 b1c3 e7e5 f1b5 f8d6 e1g1 e8g8 d2d4 e5d4 f3d4 a7a6', 'ponder': 'g1f3', 'move': 'b8c6'}
-deep.setposition(['e2e4','e7e5'])
-deep.bestmove()
-{'info': 'info depth 10 seldepth 2 score cp 40 nodes 4230 nps 1057500 time 4 multipv 1 pv g1f3 g8f6 b1c3 b8c6 f1b5 f8d6 e1g1 e8g8 d2d4 e5d4 f3d4 a7a6', 'ponder': 'g8f6', 'move': 'g1f3'}
-shallow = Engine(depth=10)
-match = Match(engines={'deep': deep, 'shallow':shallow})
-match.run()
-'deep'</p>
+<p>from pystockfish import *<br>
+deep = Engine(depth=20)<br>
+deep.setposition(['e2e4'])<br>
+deep.bestmove()<br>
+{'info': 'info depth 10 seldepth 13 score cp -40 nodes 33303 nps 951514 time 35 multipv 1 pv b8c6 g1f3 g8f6 b1c3 e7e5 f1b5 f8d6 e1g1 e8g8 d2d4 e5d4 f3d4 a7a6', 'ponder': 'g1f3', 'move': 'b8c6'}<br>
+deep.setposition(['e2e4','e7e5'])<br>
+deep.bestmove()<br>
+{'info': 'info depth 10 seldepth 2 score cp 40 nodes 4230 nps 1057500 time 4 multipv 1 pv g1f3 g8f6 b1c3 b8c6 f1b5 f8d6 e1g1 e8g8 d2d4 e5d4 f3d4 a7a6', 'ponder': 'g8f6', 'move': 'g1f3'}<br>
+shallow = Engine(depth=10)<br>
+match = Match(engines={'deep': deep, 'shallow':shallow})<br>
+match.run()<br>
+'deep'  </p>
 </blockquote>
 </blockquote>
 </blockquote>
@@ -121,21 +106,17 @@ from a uniform distribution between rand_min and rand_max.</p>
 <p>rand_min and rand_max are integers set between 0 and 200.
 The option exists so that chess matches can be easily setup between non-idential engines.</p>
       </section>
+    </div>
 
-      <footer>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <p>this project by <a href="https://github.com/iamjarret">iamjarret</a> can be found on <a href="https://github.com/iamjarret/pystockfish">GitHub</a></p>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
-        <span class="octocat"></span>
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Pystockfish maintained by <a href="https://github.com/iamjarret">iamjarret</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
-
     </div>
 
     
+
   </body>
 </html>
