@@ -181,6 +181,7 @@ class Engine(subprocess.Popen):
 		Move list is a list of moves (i.e. ['e2e4', 'e7e5', ...]) each entry as a string.  Moves must be in full algebraic notation.
 		'''
 		self.put('position startpos moves %s'%self._movelisttostr(moves))
+		self.isready()
 
 	def go(self):
 		self.put('go depth %s'%self.depth)
