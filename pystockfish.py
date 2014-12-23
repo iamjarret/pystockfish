@@ -178,7 +178,7 @@ class Engine(subprocess.Popen):
 
 	def setfenposition(self, fen):
 		'''
-		set position in fen notation
+		set position in fen notation.  Input is a FEN string i.e. "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 		'''
 		self.put('position fen %s' % fen)
 		self.isready()

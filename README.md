@@ -45,18 +45,20 @@ The Engine class initiates the Stockfish chess engine with Ponder set to False.
 with value as an integer between 0 and 200.
 
 i.e. the following explicitely sets the default parameters
-{
-	'Mobility (Middle Game)': 100,
-	'Mobility (Endgame)': 100,
-	'Passed Pawns (Middle Game)': 100,
-	'Passed Pawns (Endgame)': 100,
-	'Space': 100,
-	'Aggressiveness': 100,
-	'Cowardice': 100
-}
+	{
+		"Contempt Factor": 0,
+		"Min Split Depth": 0,
+		"Threads": 1,
+		"Hash": 16,
+		"MultiPV": 1,
+		"Skill Level": 20,
+		"Move Overhead": 30,
+		"Minimum Thinking Time": 20,
+		"Slow Mover": 80,
+	}
 
 If 'rand' is set to False, any options not explicitely set will be set to the default 
-value of 100.
+value.
 
 -------------------------
 USING RANDOM PARAMETERS
@@ -67,5 +69,7 @@ to run automated matches against slightly different engines.
 If 'rand' is set to True, any of the above parameters not explicitely set will be randomly chosen
 from a uniform distribution between rand_min and rand_max.
 
-rand_min and rand_max are integers set between 0 and 200.
+rand_min and rand_max are integers set between -10 and 10.
 The option exists so that chess matches can be easily setup between non-idential engines.
+
+*warning: Stockfish option names vary by version number.
