@@ -176,6 +176,13 @@ class Engine(subprocess.Popen):
 		self.put('position startpos moves %s'%self._movelisttostr(moves))
 		self.isready()
 
+	def setfenposition(self, fen):
+		'''
+		set position in fen notation
+		'''
+		self.put('position fen %s' % fen)
+		self.isready()
+
 	def go(self):
 		self.put('go depth %s'%self.depth)
 
