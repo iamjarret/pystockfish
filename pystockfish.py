@@ -89,37 +89,32 @@ class Engine(subprocess.Popen):
 	'''
 	This initiates the Stockfish chess engine with Ponder set to False.
 	'param' allows parameters to be specified by a dictionary object with 'Name' and 'value'
-	with value as an integer between 0 and 200.
+	with value as an integer.
 
 	i.e. the following explicitely sets the default parameters
 	{
-		'Mobility (Middle Game)': 100,
-		'Mobility (Endgame)': 100,
-		'Passed Pawns (Middle Game)': 100,
-		'Passed Pawns (Endgame)': 100,
-		'Space': 100,
-		'Aggressiveness': 100,
-		'Cowardice': 100
+		"Contempt Factor": 0,
+		"Min Split Depth": 0,
+		"Threads": 1,
+		"Hash": 16,
+		"MultiPV": 1,
+		"Skill Level": 20,
+		"Move Overhead": 30,
+		"Minimum Thinking Time": 20,
+		"Slow Mover": 80,
 	}
 
 	If 'rand' is set to False, any options not explicitely set will be set to the default 
-	value of 100.
+	value.
 
 	-----
 	USING RANDOM PARAMETERS
 	-----
-	Rand allows an engine's parameters to be randomly chosen when initialized.  This makes it easy
-	to run automated matches against slightly different engines.
-
-	If 'rand' is set to True, any of the above parameters not explicitely set will be randomly chosen
-	from a uniform distribution between rand_min and rand_max.
-
-	rand_min and rand_max are integers set between 0 and 200.
-	The reason this option exists is because engine parameters effect the engine's strength
-	nontrivially.  Depth should be the main determinator of engine strength; rand is 
-	used so that matches are not between clone engines.	
+	If you set 'rand' to True, the 'Contempt' parameter will be set to a random value between
+	'rand_min' and 'rand_max' so that you may run automated matches against slightly different
+	engines.
 	'''
-	def __init__(self, depth=2, ponder=False, param={}, rand=False, rand_min=90, rand_max=110):
+	def __init__(self, depth=2, ponder=False, param={}, rand=False, rand_min=-10, rand_max=10):
 		subprocess.Popen.__init__(self, 
 			'stockfish',
 			universal_newlines=True,
@@ -131,26 +126,24 @@ class Engine(subprocess.Popen):
 		if not ponder:
 			self.setoption('Ponder', False)
 
+		base_param = {
+		"Write Debug Log": "false",
+		"Contempt Factor": 0, # There are some stockfish versions with Contempt Factor
+		"Contempt": 0,        # and others with Contempt. Just try both.
+		"Min Split Depth": 0,
+		"Threads": 1,
+		"Hash": 16,
+		"MultiPV": 1,
+		"Skill Level": 20,
+		"Move Overhead": 30,
+		"Minimum Thinking Time": 20,
+		"Slow Mover": 80,
+		"UCI_Chess960": "false",
+		}
+
 		if rand:
-			base_param= {
-			'Mobility (Middle Game)': randint(rand_min,rand_max),
-			'Mobility (Endgame)': randint(rand_min,rand_max),
-			'Passed Pawns (Middle Game)': randint(rand_min,rand_max),
-			'Passed Pawns (Endgame)': randint(rand_min,rand_max),
-			'Space': randint(rand_min,rand_max),
-			'Aggressiveness': randint(rand_min,rand_max),
-			'Cowardice': randint(rand_min,rand_max)
-			}
-		else:
-			base_param={
-			'Mobility (Middle Game)': 100,
-			'Mobility (Endgame)': 100,
-			'Passed Pawns (Middle Game)': 100,
-			'Passed Pawns (Endgame)': 100,
-			'Space': 100,
-			'Aggressiveness': 100,
-			'Cowardice': 100
-			}
+			base_param['Contempt'] = randint(rand_min, rand_max),
+			base_param['Contempt Factor'] = randint(rand_min, rand_max),
 
 		base_param.update(param)
 		self.param = base_param
@@ -174,7 +167,7 @@ class Engine(subprocess.Popen):
 		self.put('setoption name %s value %s'%(optionname,str(value)))
 		stdout = self.isready()
 		if stdout.find('No such')>=0:
-			raise ValueError(stdout)
+			print "stockfish was unable to set option %s"%optionname
 
 	def setposition(self, moves=[]):
 		'''
