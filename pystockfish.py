@@ -219,9 +219,7 @@ class Engine(subprocess.Popen):
         Used to synchronize the python engine object with the back-end engine.  Sends 'isready' and waits for 'readyok.'
         """
         self.put('isready')
-        lastline = ''
         while True:
             text = self.stdout.readline().strip()
             if text == 'readyok':
-                return lastline
-            lastline = text
+                return text
