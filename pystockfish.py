@@ -37,8 +37,8 @@ class Match:
 
     def __init__(self, engines):
         random_bin = randint(0, 1)
-        self.white = engines.keys()[random_bin]
-        self.black = engines.keys()[not random_bin]
+        self.white = list(engines.keys())[random_bin]
+        self.black = list(engines.keys())[not random_bin]
         self.white_engine = engines.get(self.white)
         self.black_engine = engines.get(self.black)
         self.moves = []
@@ -153,7 +153,7 @@ class Engine(subprocess.Popen):
 
         base_param.update(param)
         self.param = base_param
-        for name, value in base_param.items():
+        for name, value in list(base_param.items()):
             self.setoption(name, value)
 
     def newgame(self):
@@ -173,7 +173,7 @@ class Engine(subprocess.Popen):
         self.put('setoption name %s value %s' % (optionname, str(value)))
         stdout = self.isready()
         if stdout.find('No such') >= 0:
-            print "stockfish was unable to set option %s" % optionname
+            print("stockfish was unable to set option %s" % optionname)
 
     def setposition(self, moves=[]):
         """
