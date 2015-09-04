@@ -80,6 +80,7 @@ The option exists so that chess matches can be easily setup between non-idential
 *warning: Stockfish option names vary by version number.
 
 -------------
-Fork Notes:
+Update Notes
 -------------
-* Fork by [mbadawi23](http://www.github.com/mbadawi23) complies with both: *Python2* and *Python3*.
+* Version 0.1.5
+* Pytockfish now complies with both: *Python2* and *Python3*.
