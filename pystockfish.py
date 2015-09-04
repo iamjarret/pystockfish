@@ -82,9 +82,9 @@ class Match:
             return False
 
     def run(self):
-        '''
+        """
         Returns the winning chess engine or "None" if there is a draw.
-        '''
+        """
         while self.move():
             pass
         return self.winner
@@ -96,7 +96,7 @@ class Engine(subprocess.Popen):
     'param' allows parameters to be specified by a dictionary object with 'Name' and 'value'
     with value as an integer.
 
-    i.e. the following explicitely sets the default parameters
+    i.e. the following explicitly sets the default parameters
     {
         "Contempt Factor": 0,
         "Min Split Depth": 0,
@@ -109,7 +109,7 @@ class Engine(subprocess.Popen):
         "Slow Mover": 80,
     }
 
-    If 'rand' is set to False, any options not explicitely set will be set to the default
+    If 'rand' is set to False, any options not explicitly set will be set to the default
     value.
 
     -----
@@ -165,6 +165,7 @@ class Engine(subprocess.Popen):
 
     def put(self, command):
         self.stdin.write(command + '\n')
+        self.stdin.flush()
 
     def flush(self):
         self.stdout.flush()
