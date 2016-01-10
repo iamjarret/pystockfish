@@ -6,14 +6,14 @@
     executable at the root level.
 
     Built on Ubuntu 12.1 tested with Stockfish 120212.
-    
+
     :copyright: (c) 2013 by Jarret Petrillo.
     :license: GNU General Public License, see LICENSE for more details.
 """
 
 import subprocess
 from random import randint
-
+import infoparse
 
 class Match:
     """
@@ -132,6 +132,29 @@ class Engine(subprocess.Popen):
         if not ponder:
             self.setoption('Ponder', False)
 
+        self.info_structure = {
+            'depth': "",
+            'seldepth': "",
+            'time': "",
+            'nodes': "",
+            'pv': [],
+            'multipv': "",
+            'score': {'cp': "",
+                    'mate': "",
+                    'lowerbound': "",
+                    'upperbound': ""},
+            'currmove': "",
+            'currmovenumber': "",
+            'hashfull': "",
+            'nps': "",
+            'tbhits': "",
+            'sbhits': "",
+            'cpuload': "",
+            'string': "",
+            'refutation': [],
+            'currline': []
+        }
+
         base_param = {
             "Write Debug Log": "false",
             "Contempt Factor": 0,  # There are some stockfish versions with Contempt Factor
@@ -155,6 +178,7 @@ class Engine(subprocess.Popen):
         self.param = base_param
         for name, value in list(base_param.items()):
             self.setoption(name, value)
+
 
     def newgame(self):
         """
@@ -203,17 +227,21 @@ class Engine(subprocess.Popen):
         return movestr.strip()
 
     def bestmove(self):
-        last_line = ""
+        info = None
         self.go()
         while True:
+
             text = self.stdout.readline().strip()
             split_text = text.split(' ')
+            if split_text[0].lower() == "info":
+                info_parsed = infoparse.info_parse(text, self.info_structure)
+
             if split_text[0] == 'bestmove':
                 return {'move': split_text[1],
                         'ponder': split_text[3],
-                        'info': last_line
+                        'info': info
                 }
-            last_line = text
+            info = info_parsed
 
     def isready(self):
         """
