@@ -28,7 +28,7 @@ def get_sublist(list_, keys, key):
 
 
 def info_parse(info_txt, info_dict):
-    """return a structured dictionary from an info string sent by an UCI engine"""
+    """parse the info string sent by an UCI engine according to info_dict dictionary"""
 
     split_text = info_txt.split(" ")
 
