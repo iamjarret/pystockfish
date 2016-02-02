@@ -13,7 +13,7 @@
 
 import subprocess
 from random import randint
-import infoparse
+
 
 class Match:
     """
@@ -234,7 +234,7 @@ class Engine(subprocess.Popen):
             text = self.stdout.readline().strip()
             split_text = text.split(' ')
             if split_text[0].lower() == "info":
-                info_parsed = infoparse.info_parse(text, self.info_structure)
+                info_parsed = self.info_parse(text, self.info_structure)
 
             if split_text[0] == 'bestmove':
                 return {'move': split_text[1],
@@ -242,6 +242,57 @@ class Engine(subprocess.Popen):
                         'info': info
                 }
             info = info_parsed
+
+    def info_parse(self, info_txt, info_dict):
+        """
+        parse the info string sent by UCI engine according to info_dict
+        """
+        split_text = info_txt.split(" ")
+        dict_ = dict()
+        for key in info_dict.keys():
+            if key in split_text:
+                value = self.get_value(split_text, info_dict.keys(), key)
+                if type(info_dict[key]) == list:
+                    dict_[key] = value
+                elif type(info_dict[key]) == dict:
+                    info_txt_a = " ".join(value)
+                    dict_[key] = self.info_parse(info_txt_a, info_dict[key])
+                else:
+                    if len(value) == 0:
+                        dict_[key] = True
+                    else:
+                        n = self.parse_number(value[0])
+                        if n:
+                            dict_[key] = n
+                        else:
+                            dict_[key] = value[0]
+        return dict_
+
+    def parse_number(self, string):
+        """
+        return the parsed number if any, otherwise, the string as it
+        """
+        try:
+            return int(string)
+        except ValueError:
+            pass
+        try:
+            return float(string)
+        except ValueError:
+            pass
+        return string
+
+    def get_value(self, list_, keys, key):
+        """
+        get the value of key
+        """
+        sl = list_[list_.index(key) + 1:]
+        l = []
+        for el in sl:
+            if el in keys:
+                break
+            l.append(el)
+        return l
 
     def isready(self):
         """
