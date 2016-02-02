@@ -1,5 +1,31 @@
 # -*- coding: utf-8 -*-
 
+def info_parse(info_txt, info_dict):
+    """parse the info string sent by an UCI engine according to info_dict dictionary"""
+
+    split_text = info_txt.split(" ")
+
+    dict_ = dict()
+    for key in info_dict.keys():
+        if key in split_text:
+            value = get_sublist(split_text, info_dict.keys(), key)
+            if type(info_dict[key]) == list:
+                dict_[key] = value
+            elif type(info_dict[key]) == dict:
+                info_txt_a = " ".join(value)
+                dict_[key] = info_parse(info_txt_a, info_dict[key])
+            else:
+                if len(value) == 0:
+                    dict_[key] = True
+                else:
+                    n = parse_number(value[0])
+                    if n:
+                        dict_[key] = n
+                    else:
+                        dict_[key] = value[0]
+    return dict_
+
+
 def parse_number(string):
     """return the parsed number if any, otherwise, the string as it"""
     try:
@@ -25,32 +51,6 @@ def get_sublist(list_, keys, key):
             break
         l.append(el)
     return l
-
-
-def info_parse(info_txt, info_dict):
-    """parse the info string sent by an UCI engine according to info_dict dictionary"""
-
-    split_text = info_txt.split(" ")
-
-    dict_ = dict()
-    for key in info_dict.keys():
-        if key in split_text:
-            value = get_sublist(split_text, info_dict.keys(), key)
-            if type(info_dict[key]) == list:
-                dict_[key] = value
-            elif type(info_dict[key]) == dict:
-                info_txt_a = " ".join(value)
-                dict_[key] = info_parse(info_txt_a, info_dict[key])
-            else:
-                if len(value) == 0:
-                    dict_[key] = True
-                else:
-                    n = parse_number(value[0])
-                    if n:
-                        dict_[key] = n
-                    else:
-                        dict_[key] = value[0]
-    return dict_
 
 
 if __name__ == "__main__":
