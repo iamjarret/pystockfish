@@ -14,7 +14,6 @@
 import subprocess
 from random import randint
 
-
 class Match:
     """
     The Match class setups a chess match between two specified engines.  The white player
@@ -132,28 +131,15 @@ class Engine(subprocess.Popen):
         if not ponder:
             self.setoption('Ponder', False)
 
-        self.info_structure = {
-            'depth': "",
-            'seldepth': "",
-            'time': "",
-            'nodes': "",
-            'pv': [],
-            'multipv': "",
-            'score': {'cp': "",
-                    'mate': "",
-                    'lowerbound': "",
-                    'upperbound': ""},
-            'currmove': "",
-            'currmovenumber': "",
-            'hashfull': "",
-            'nps': "",
-            'tbhits': "",
-            'sbhits': "",
-            'cpuload': "",
-            'string': "",
-            'refutation': [],
-            'currline': []
-        }
+        # comment JP: why assume a schema?
+
+        self.info_contains = [
+            'depth', 'seldepth', 'time', 'nodes',
+            'pv', 'multipv', 'score', 'currmove', 
+            'currmovenumber', 'hashfull', 'nps',
+            'tbhits', 'sbhits', 'cpuload', 'string',
+            'refutation', 'currline', 'cp', 'mate',
+            'lowerbound', 'upperbound']
 
         base_param = {
             "Write Debug Log": "false",
@@ -234,7 +220,7 @@ class Engine(subprocess.Popen):
             text = self.stdout.readline().strip()
             split_text = text.split(' ')
             if split_text[0].lower() == "info":
-                info_parsed = self.info_parse(text, self.info_structure)
+                info_parsed = self.info_parse(text)
 
             if split_text[0] == 'bestmove':
                 return {'move': split_text[1],
@@ -243,56 +229,56 @@ class Engine(subprocess.Popen):
                 }
             info = info_parsed
 
-    def info_parse(self, info_txt, info_dict):
+    def info_parse(self, info_txt):
         """
         parse the info string sent by UCI engine according to info_dict
         """
         split_text = info_txt.split(" ")
         dict_ = dict()
-        for key in info_dict.keys():
-            if key in split_text:
-                value = self.get_value(split_text, info_dict.keys(), key)
-                if type(info_dict[key]) == list:
-                    dict_[key] = value
-                elif type(info_dict[key]) == dict:
-                    info_txt_a = " ".join(value)
-                    dict_[key] = self.info_parse(info_txt_a, info_dict[key])
-                else:
-                    if len(value) == 0:
-                        dict_[key] = True
-                    else:
-                        n = self.parse_number(value[0])
-                        if n:
-                            dict_[key] = n
-                        else:
-                            dict_[key] = value[0]
+
+        # comment JP: filter enumerated by relevant values
+        key_items = filter(lambda input: input[1] in self.info_contains,
+         enumerate(split_text))
+        key_items.sort()
+
+        # comment JP: now we know where the keys are and the space
+        # between them are known.
+
+        # now key_items = [(0,'ponder'), (2, 'depth')]
+        from itertools import tee
+
+        # add last element's endpoint
+        key_items.append((len(split_text),'null'))
+
+        temp1, temp2 = tee(key_items, 2)
+        next(temp2)
+        key_items_full = [a+(b[0],) for a, b in zip(temp1, temp2)]
+        # now key_items_full = [(0, 'ponder', 2), (2,'depth', 4)]
+
+        for start, name, stop in key_items_full:
+            values = split_text[start+1:stop]
+            if len(values)==0:
+                dict_[name] = True
+            elif len(values)==1:
+                dict_[name] = self.parse_number(values[0])
+            elif len(values)>1:
+                dict_[name] = values
+
         return dict_
 
     def parse_number(self, string):
         """
         return the parsed number if any, otherwise, the string as it
         """
+
+        # comment JP: this will make anything floatable an int
+        # probably better design to make a choice between ints
+        # or floats.  I've never seen a float in the stockfish
+        # output.
         try:
             return int(string)
         except ValueError:
-            pass
-        try:
-            return float(string)
-        except ValueError:
-            pass
-        return string
-
-    def get_value(self, list_, keys, key):
-        """
-        get the value of key
-        """
-        sl = list_[list_.index(key) + 1:]
-        l = []
-        for el in sl:
-            if el in keys:
-                break
-            l.append(el)
-        return l
+            return string
 
     def isready(self):
         """
