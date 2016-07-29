@@ -209,8 +209,12 @@ class Engine(subprocess.Popen):
             text = self.stdout.readline().strip()
             split_text = text.split(' ')
             if split_text[0] == 'bestmove':
+                if len(split_text)>=3:
+                    ponder=split_text[3]
+                else:
+                    ponder=None
                 return {'move': split_text[1],
-                        'ponder': split_text[3],
+                        'ponder': ponder,
                         'info': last_line
                 }
             last_line = text
