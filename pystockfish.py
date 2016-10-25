@@ -67,19 +67,19 @@ class Match:
         ponder = movedict.get('ponder')
         self.moves.append(bestmove)
 
+        mateloc = info.find('mate')
+        if mateloc >= 0:
+            matenum = int(info[mateloc + 5])
+            if matenum > 0:
+                self.winner_engine = active_engine
+                self.winner = active_engine_name
+            elif matenum < 0:
+                self.winner_engine = inactive_engine
+                self.winner = inactive_engine_name
+            return False
+
         if ponder != '(none)':
             return True
-        else:
-            mateloc = info.find('mate')
-            if mateloc >= 0:
-                matenum = int(info[mateloc + 5])
-                if matenum > 0:
-                    self.winner_engine = active_engine
-                    self.winner = active_engine_name
-                elif matenum < 0:
-                    self.winner_engine = inactive_engine
-                    self.winner = inactive_engine_name
-            return False
 
     def run(self):
         """
