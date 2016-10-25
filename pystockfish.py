@@ -11,8 +11,12 @@
     :license: GNU General Public License, see LICENSE for more details.
 """
 
+import re
 import subprocess
 from random import randint
+MAX_MOVES = 200
+UCI_MOVE_REGEX = "[a-h]\d[a-h]\d[qrnb]?"
+PV_REGEX = " pv (?P<move_list>{0}( {0})*)".format(UCI_MOVE_REGEX)
 
 
 class Match:
@@ -48,7 +52,12 @@ class Match:
         self.winner_name = None
 
     def move(self):
-        if len(self.moves) > 200:
+        """
+        Advance game by single move, if possible.
+
+        @return: logical indicator if move was performed.
+        """
+        if len(self.moves) == MAX_MOVES:
             return False
         elif len(self.moves) % 2:
             active_engine = self.black_engine
@@ -67,9 +76,8 @@ class Match:
         ponder = movedict.get('ponder')
         self.moves.append(bestmove)
 
-        mateloc = info.find('mate')
-        if mateloc >= 0:
-            matenum = int(info[mateloc + 5])
+        if info["score"]["eval"] == "mate":
+            matenum = info["score"]["value"]
             if matenum > 0:
                 self.winner_engine = active_engine
                 self.winner = active_engine_name
@@ -180,7 +188,7 @@ class Engine(subprocess.Popen):
         """
         Move list is a list of moves (i.e. ['e2e4', 'e7e5', ...]) each entry as a string.  Moves must be in full algebraic notation.
         """
-        self.put('position startpos moves %s' % self._movelisttostr(moves))
+        self.put('position startpos moves %s' % Engine._movelisttostr(moves))
         self.isready()
 
     def setfenposition(self, fen):
@@ -193,31 +201,90 @@ class Engine(subprocess.Popen):
     def go(self):
         self.put('go depth %s' % self.depth)
 
-    def _movelisttostr(self, moves):
+    @staticmethod
+    def _movelisttostr(moves):
         """
-        Concatenates a list of strings
+        Concatenates a list of strings.
+
+        This is format in which stockfish "setoption setposition" takes move input.
         """
-        movestr = ''
-        for h in moves:
-            movestr += h + ' '
-        return movestr.strip()
+        return ' '.join(moves)
 
     def bestmove(self):
-        last_line = ""
+        """
+        Get proposed best move for current position.
+
+        @return: dictionary with 'move', 'ponder', 'info' containing best move's UCI notation,
+        ponder value and info dictionary.
+        """
         self.go()
+        last_info = ""
         while True:
             text = self.stdout.readline().strip()
             split_text = text.split(' ')
-            if split_text[0] == 'bestmove':
-                if len(split_text)>=3:
-                    ponder=split_text[3]
-                else:
-                    ponder=None
+            print(text)
+            if split_text[0] == "info":
+                last_info = Engine._bestmove_get_info(text)
+            if split_text[0] == "bestmove":
+                ponder = None if len(split_text[0]) < 3 else split_text[3]
                 return {'move': split_text[1],
                         'ponder': ponder,
-                        'info': last_line
-                }
-            last_line = text
+                        'info': last_info}
+
+    @staticmethod
+    def _bestmove_get_info(text):
+        """
+        Parse stockfish evaluation output as dictionary.
+
+        Examples of input:
+
+        "info depth 2 seldepth 3 multipv 1 score cp -656 nodes 43 nps 43000 tbhits 0 \
+        time 1 pv g7g6 h3g3 g6f7"
+
+        "info depth 10 seldepth 12 multipv 1 score mate 5 nodes 2378 nps 1189000 tbhits 0 \
+        time 2 pv h3g3 g6f7 g3c7 b5d7 d1d7 f7g6 c7g3 g6h5 e6f4"
+        """
+        result_dict = Engine._get_info_pv(text)
+        result_dict.update(Engine._get_info_score(text))
+
+        single_value_fields = ['depth', 'seldepth', 'multipv', 'nodes', 'nps', 'tbhits', 'time']
+        for field in single_value_fields:
+            result_dict.update(Engine._get_info_singlevalue_subfield(text, field))
+
+        return result_dict
+
+    @staticmethod
+    def _get_info_singlevalue_subfield(info, field):
+        """
+        Helper function for _bestmove_get_info.
+
+        Extracts (integer) values for single value fields.
+        """
+        search = re.search(pattern=field + " (?P<value>\d+)", string=info)
+        return {field: int(search.group("value"))}
+
+    @staticmethod
+    def _get_info_score(info):
+        """
+        Helper function for _bestmove_get_info.
+
+        Example inputs:
+
+        score cp -100        <- engine is behind 100 centipawns
+        score mate 3         <- engine has big lead or checkmated opponent
+        """
+        search = re.search(pattern="score (?P<eval>\w+) (?P<value>-?\d+)", string=info)
+        return {"score": {"eval": search.group("eval"), "value": int(search.group("value"))}}
+
+    @staticmethod
+    def _get_info_pv(info):
+        """
+        Helper function for _bestmove_get_info.
+
+        Extracts "pv" field from bestmove's info and returns move sequence in UCI notation.
+        """
+        search = re.search(pattern=PV_REGEX, string=info)
+        return {"pv": search.group("move_list")}
 
     def isready(self):
         """
